@@ -393,6 +393,37 @@ body {
   text-align: center;
   margin: 30px;
 }
+
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #eee;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pagination button.active {
+  background-color: #5856eb;
+  color: white;
+  font-weight: bold;
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+.page-info {
+  text-align: center;
+  margin-top: 10px;
+  font-weight: 500;
+}
 @media (max-width: 768px) {
   .form-row {
     flex-direction: column;

@@ -8,6 +8,8 @@ const TaskList = ({ tasks, onEditTask, onAddTask, onDeleteTask }) => {
   const [showActivitiesModal, setShowActivitiesModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [selectedActivities, setSelectedActivities] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const tasksPerPage = 10;
 
   const handleDelete = () => {
     if (selectedTask) {
@@ -29,6 +31,21 @@ const TaskList = ({ tasks, onEditTask, onAddTask, onDeleteTask }) => {
       task.assignee.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  // Pagination calculations
+  const indexOfLastTask = currentPage * tasksPerPage;
+  const indexOfFirstTask = indexOfLastTask - tasksPerPage;
+  const currentTasks = filteredTasks.slice(indexOfFirstTask, indexOfLastTask);
+  const totalPages = Math.ceil(filteredTasks.length / tasksPerPage);
+
+  const paginate = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
   return (
     <div className="task-list-container">
       <div className="task-list">
@@ -48,6 +65,9 @@ const TaskList = ({ tasks, onEditTask, onAddTask, onDeleteTask }) => {
             className="search-input"
           />
         </div>
+        <div>
+          <p>Records:{tasks.length}</p>
+        </div>
 
         <table className="task-table">
           <thead>
@@ -62,10 +82,10 @@ const TaskList = ({ tasks, onEditTask, onAddTask, onDeleteTask }) => {
             </tr>
           </thead>
           <tbody>
-            {filteredTasks.length > 0 ? (
-              filteredTasks.map((task, index) => (
+            {currentTasks.length > 0 ? (
+              currentTasks.map((task, index) => (
                 <tr key={task.id}>
-                  <td>{index + 1}</td>
+                  <td>{indexOfFirstTask + index + 1}</td>
                   <td>{task.name}</td>
                   <td>{task.description}</td>
                   <td>
@@ -102,10 +122,43 @@ const TaskList = ({ tasks, onEditTask, onAddTask, onDeleteTask }) => {
                 </tr>
               ))
             ) : (
-              <div className="no-record-container">No Record Found</div>
+              <tr>
+                <td colSpan="7" className="no-record-container">
+                  No Record Found
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
+
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              ◀ Prev
+            </button>
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => paginate(i + 1)}
+                className={currentPage === i + 1 ? "active" : ""}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next ▶
+            </button>
+          </div>
+        )}
+        {/* <div className="page-info">
+          Page {currentPage} of {totalPages}
+        </div> */}
       </div>
 
       <DeleteConfirmModal

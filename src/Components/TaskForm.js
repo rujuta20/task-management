@@ -28,7 +28,12 @@ const TaskForm = ({ task, onSave, onCancel }) => {
   }, [task]);
 
   const handleSubmit = () => {
-    if (formData.name && formData.description && formData.assignee) {
+    if (
+      formData.name &&
+      formData.description &&
+      formData.assignee &&
+      formData.activities.length == 1
+    ) {
       onSave(formData);
     }
   };
@@ -154,15 +159,6 @@ const TaskForm = ({ task, onSave, onCancel }) => {
           </div>
         </div>
 
-        <div className="form-row">
-          <button className="btn btn-primary" onClick={handleSubmit}>
-            {task ? "Update Task" : "Add Task"}
-          </button>
-          <button className="btn btn-cancel" onClick={onCancel}>
-            Cancel
-          </button>
-        </div>
-
         <div className="activities-section">
           <div className="section-header">
             <h2>Activities</h2>
@@ -185,97 +181,109 @@ const TaskForm = ({ task, onSave, onCancel }) => {
               </tr>
             </thead>
             <tbody>
-              {formData.activities.map((activity, index) => (
-                <tr key={activity.id}>
-                  <td>{index + 1}</td>
-                  <td>
-                    {editingActivityId === activity.id ? (
-                      <input
-                        type="date"
-                        value={editedActivity.date}
-                        onChange={(e) =>
-                          setEditedActivity({
-                            ...editedActivity,
-                            date: e.target.value,
-                          })
-                        }
-                        className="form-control"
-                      />
-                    ) : (
-                      activity.date
-                    )}
-                  </td>
-                  <td>
-                    {editingActivityId === activity.id ? (
-                      <input
-                        type="text"
-                        value={editedActivity.name}
-                        onChange={(e) =>
-                          setEditedActivity({
-                            ...editedActivity,
-                            name: e.target.value,
-                          })
-                        }
-                        className="form-control"
-                      />
-                    ) : (
-                      activity.name
-                    )}
-                  </td>
-                  <td>
-                    {editingActivityId === activity.id ? (
-                      <input
-                        type="text"
-                        value={editedActivity.department}
-                        onChange={(e) =>
-                          setEditedActivity({
-                            ...editedActivity,
-                            department: e.target.value,
-                          })
-                        }
-                        className="form-control"
-                      />
-                    ) : (
-                      activity.department
-                    )}
-                  </td>
-                  <td>
-                    {editingActivityId === activity.id ? (
-                      <>
-                        <button
-                          className="icon-btn save-btn"
-                          onClick={handleSaveActivity}
-                        >
-                          💾
-                        </button>
-                        <button
-                          className="icon-btn cancel-btn"
-                          onClick={handleCancelEdit}
-                        >
-                          ❌
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          className="icon-btn edit-btn"
-                          onClick={() => handleEditActivity(activity)}
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          className="icon-btn delete-btn"
-                          onClick={() => handleDeleteActivity(activity.id)}
-                        >
-                          🗑️
-                        </button>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {formData.activities.length > 0 ? (
+                formData.activities.map((activity, index) => (
+                  <tr key={activity.id}>
+                    <td>{index + 1}</td>
+                    <td>
+                      {editingActivityId === activity.id ? (
+                        <input
+                          type="date"
+                          value={editedActivity.date}
+                          onChange={(e) =>
+                            setEditedActivity({
+                              ...editedActivity,
+                              date: e.target.value,
+                            })
+                          }
+                          className="form-control"
+                        />
+                      ) : (
+                        activity.date
+                      )}
+                    </td>
+                    <td>
+                      {editingActivityId === activity.id ? (
+                        <input
+                          type="text"
+                          value={editedActivity.name}
+                          onChange={(e) =>
+                            setEditedActivity({
+                              ...editedActivity,
+                              name: e.target.value,
+                            })
+                          }
+                          className="form-control"
+                        />
+                      ) : (
+                        activity.name
+                      )}
+                    </td>
+                    <td>
+                      {editingActivityId === activity.id ? (
+                        <input
+                          type="text"
+                          value={editedActivity.department}
+                          onChange={(e) =>
+                            setEditedActivity({
+                              ...editedActivity,
+                              department: e.target.value,
+                            })
+                          }
+                          className="form-control"
+                        />
+                      ) : (
+                        activity.department
+                      )}
+                    </td>
+                    <td>
+                      {editingActivityId === activity.id ? (
+                        <>
+                          <button
+                            className="icon-btn save-btn"
+                            onClick={handleSaveActivity}
+                          >
+                            💾
+                          </button>
+                          <button
+                            className="icon-btn cancel-btn"
+                            onClick={handleCancelEdit}
+                          >
+                            ❌
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            className="icon-btn edit-btn"
+                            onClick={() => handleEditActivity(activity)}
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            className="icon-btn delete-btn"
+                            onClick={() => handleDeleteActivity(activity.id)}
+                          >
+                            🗑️
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <div>No Record Found</div>
+              )}
             </tbody>
           </table>
+        </div>
+        <div className="form-row">
+          <button className="btn btn-primary" onClick={handleSubmit}>
+            {task ? "Update Task" : "Add Task"}
+          </button>
+          <button className="btn btn-cancel" onClick={onCancel}>
+            Cancel
+          </button>
         </div>
       </div>
 

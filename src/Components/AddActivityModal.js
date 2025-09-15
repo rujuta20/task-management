@@ -28,6 +28,15 @@ const AddActivityModal = ({ isOpen, onClose, onSave }) => {
   };
 
   if (!isOpen) return null;
+  const today = new Date();
+  const maxDate = new Date();
+  maxDate.setDate(today.getDate() + 30);
+
+  const getLocalDateString = (date) => {
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - offset * 60 * 1000);
+    return localDate.toISOString().split("T")[0];
+  };
 
   return (
     <div className="modal-overlay">
@@ -55,6 +64,8 @@ const AddActivityModal = ({ isOpen, onClose, onSave }) => {
             <input
               type="date"
               value={formData.date}
+              min={getLocalDateString(today)}
+              max={getLocalDateString(maxDate)}
               onChange={(e) =>
                 setFormData({ ...formData, date: e.target.value })
               }
