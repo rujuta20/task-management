@@ -1,23 +1,35 @@
-import { useState } from "react";
-const AddActivityModal = ({ isOpen, onClose, onSave }) => {
+import { useState, useEffect } from "react";
+const AddActivityModal = ({
+  isOpen,
+  onClose,
+  onSave,
+  activityToEdit = null,
+}) => {
   const [formData, setFormData] = useState({
     name: "",
     date: "",
     department: "",
   });
 
+  useEffect(() => {
+    if (activityToEdit) {
+      setFormData(activityToEdit);
+    } else {
+      setFormData({ name: "", date: "", department: "" });
+    }
+  }, [activityToEdit]);
+
   const handleSubmit = (saveAndNext = false) => {
     if (formData.name && formData.date && formData.department) {
       onSave({
-        id: Date.now(),
+        id: activityToEdit?.id || Date.now(), // Keep ID if editing
         ...formData,
       });
 
-      if (saveAndNext) {
+      if (saveAndNext && !activityToEdit) {
         setFormData({ name: "", date: "", department: "" });
       } else {
         onClose();
-        setFormData({ name: "", date: "", department: "" });
       }
     }
   };
@@ -91,12 +103,16 @@ const AddActivityModal = ({ isOpen, onClose, onSave }) => {
           <button className="btn btn-save" onClick={() => handleSubmit(false)}>
             Save
           </button>
-          <button
-            className="btn btn-save-next"
-            onClick={() => handleSubmit(true)}
-          >
-            Save & Next
-          </button>
+          {!activityToEdit ? (
+            <button
+              className="btn btn-save-next"
+              onClick={() => handleSubmit(true)}
+            >
+              Save & Next
+            </button>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
     </div>

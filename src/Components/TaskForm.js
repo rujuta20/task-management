@@ -10,8 +10,7 @@ const TaskForm = ({ task, onSave, onCancel }) => {
     activities: [],
   });
   const [showAddActivity, setShowAddActivity] = useState(false);
-  const [editingActivityId, setEditingActivityId] = useState(null);
-  const [editedActivity, setEditedActivity] = useState(null);
+  const [currentEditingActivity, setCurrentEditingActivity] = useState(null); // New state
 
   useEffect(() => {
     if (task) {
@@ -32,17 +31,12 @@ const TaskForm = ({ task, onSave, onCancel }) => {
       formData.name &&
       formData.description &&
       formData.assignee &&
-      formData.activities.length == 1
+      formData.activities.length >= 1
     ) {
       onSave(formData);
+    } else {
+      alert("Please fill all fields and add at least one activity.");
     }
-  };
-
-  const handleAddActivity = (activity) => {
-    setFormData({
-      ...formData,
-      activities: [...formData.activities, activity],
-    });
   };
 
   const handleDeleteActivity = (activityId) => {
@@ -52,25 +46,40 @@ const TaskForm = ({ task, onSave, onCancel }) => {
     });
   };
 
+  // Open modal for add
+  const openAddActivityModal = () => {
+    setCurrentEditingActivity(null); // Clear edit mode
+    setShowAddActivity(true);
+  };
+
+  // Open modal for edit
   const handleEditActivity = (activity) => {
-    setEditingActivityId(activity.id);
-    setEditedActivity({ ...activity });
+    setCurrentEditingActivity(activity); // Set activity to edit
+    setShowAddActivity(true);
   };
 
-  const handleSaveActivity = () => {
-    setFormData({
-      ...formData,
-      activities: formData.activities.map((act) =>
-        act.id === editedActivity.id ? editedActivity : act
-      ),
-    });
-    setEditingActivityId(null);
-    setEditedActivity(null);
+  const handleSaveActivity = (activity) => {
+    if (currentEditingActivity) {
+      setFormData((prev) => ({
+        ...prev,
+        activities: prev.activities.map((a) =>
+          a.id === activity.id ? activity : a
+        ),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        activities: [...prev.activities, activity],
+      }));
+    }
+
+    setCurrentEditingActivity(null);
+    setShowAddActivity(false);
   };
 
-  const handleCancelEdit = () => {
-    setEditingActivityId(null);
-    setEditedActivity(null);
+  const handleCloseActivityModal = () => {
+    setCurrentEditingActivity(null);
+    setShowAddActivity(false);
   };
 
   return (
@@ -162,10 +171,9 @@ const TaskForm = ({ task, onSave, onCancel }) => {
         <div className="activities-section">
           <div className="section-header">
             <h2>Activities</h2>
-            <button
-              className="btn btn-primary"
-              onClick={() => setShowAddActivity(true)}
-            >
+            {/* <h2>{activityToEdit ? "Update Activity" : "Add Activity"}</h2> */}
+
+            <button className="btn btn-primary" onClick={openAddActivityModal}>
               + Add Activity
             </button>
           </div>
@@ -185,89 +193,24 @@ const TaskForm = ({ task, onSave, onCancel }) => {
                 formData.activities.map((activity, index) => (
                   <tr key={activity.id}>
                     <td>{index + 1}</td>
+                    <td>{activity.date}</td>
+                    <td>{activity.name}</td>
+                    <td>{activity.department}</td>
                     <td>
-                      {editingActivityId === activity.id ? (
-                        <input
-                          type="date"
-                          value={editedActivity.date}
-                          onChange={(e) =>
-                            setEditedActivity({
-                              ...editedActivity,
-                              date: e.target.value,
-                            })
-                          }
-                          className="form-control"
-                        />
-                      ) : (
-                        activity.date
-                      )}
-                    </td>
-                    <td>
-                      {editingActivityId === activity.id ? (
-                        <input
-                          type="text"
-                          value={editedActivity.name}
-                          onChange={(e) =>
-                            setEditedActivity({
-                              ...editedActivity,
-                              name: e.target.value,
-                            })
-                          }
-                          className="form-control"
-                        />
-                      ) : (
-                        activity.name
-                      )}
-                    </td>
-                    <td>
-                      {editingActivityId === activity.id ? (
-                        <input
-                          type="text"
-                          value={editedActivity.department}
-                          onChange={(e) =>
-                            setEditedActivity({
-                              ...editedActivity,
-                              department: e.target.value,
-                            })
-                          }
-                          className="form-control"
-                        />
-                      ) : (
-                        activity.department
-                      )}
-                    </td>
-                    <td>
-                      {editingActivityId === activity.id ? (
-                        <>
-                          <button
-                            className="icon-btn save-btn"
-                            onClick={handleSaveActivity}
-                          >
-                            💾
-                          </button>
-                          <button
-                            className="icon-btn cancel-btn"
-                            onClick={handleCancelEdit}
-                          >
-                            ❌
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            className="icon-btn edit-btn"
-                            onClick={() => handleEditActivity(activity)}
-                          >
-                            ✏️
-                          </button>
-                          <button
-                            className="icon-btn delete-btn"
-                            onClick={() => handleDeleteActivity(activity.id)}
-                          >
-                            🗑️
-                          </button>
-                        </>
-                      )}
+                      <>
+                        <button
+                          className="icon-btn edit-btn"
+                          onClick={() => handleEditActivity(activity)}
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          className="icon-btn delete-btn"
+                          onClick={() => handleDeleteActivity(activity.id)}
+                        >
+                          🗑️
+                        </button>
+                      </>
                     </td>
                   </tr>
                 ))
@@ -289,8 +232,9 @@ const TaskForm = ({ task, onSave, onCancel }) => {
 
       <AddActivityModal
         isOpen={showAddActivity}
-        onClose={() => setShowAddActivity(false)}
-        onSave={handleAddActivity}
+        onClose={handleCloseActivityModal}
+        onSave={handleSaveActivity}
+        activityToEdit={currentEditingActivity}
       />
     </div>
   );
